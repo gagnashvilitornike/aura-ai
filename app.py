@@ -207,14 +207,20 @@ if st.session_state.report_stage > 0:
                 st.error(f"Payment System Error: {e}")
 
     elif st.session_state.report_stage == 2:
-        # Premium Content Display
+        # --- PREMIUM CONTENT DISPLAY ---
         st.balloons()
         st.success("✨ **Premium Master Protocol Unlocked** ✨")
-        st.markdown(st.session_state.premium_text)
-        st.markdown("---")
-        st.download_button(
-            label="📩 DOWNLOAD FULL PREMIUM REPORT (.TXT)",
-            data=st.session_state.premium_text,
-            file_name="Aura_Premium_Report.txt",
-            mime="text/plain"
-        )
+        
+        # Check if premium text is in session
+        if st.session_state.premium_text:
+            st.markdown(st.session_state.premium_text)
+            st.markdown("---")
+            st.download_button(
+                label="📩 DOWNLOAD FULL PREMIUM REPORT (.TXT)",
+                data=st.session_state.premium_text,
+                file_name="Aura_Premium_Report.txt",
+                mime="text/plain"
+            )
+        else:
+            # Recovery message for session timeouts
+            st.warning("Payment verified, but session timed out. Please click 'GENERATE' above one more time to instantly view your report (No extra charge).")
