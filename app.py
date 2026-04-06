@@ -2,11 +2,11 @@ import streamlit as st
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-
+import stripe
 # --- SETUP ---
 load_dotenv()
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
+stripe.api_key = st.secrets["STRIPE_SECRET_KEY"]
 st.set_page_config(page_title="Aura | Premium Insights", layout="centered")
 
 # --- THEME MANAGEMENT & MEMORY ---
@@ -149,29 +149,57 @@ if st.button("GENERATE MY AURA REPORT"):
                 st.error(f"Error processing your request: {str(e)}")
 
 # --- DISPLAY LOGIC ---
+# --- PAYMENT REDIRECT HANDLING ---
+# This checks if the user just returned from a successful Stripe payment
+if st.query_params.get("success") == "true":
+    st.session_state.report_stage = 2
+
+# --- DISPLAY LOGIC ---
 if st.session_state.report_stage > 0:
-    st.markdown("---")
-    st.markdown(st.session_state.free_text)
-    
     if st.session_state.report_stage == 1:
-        st.download_button("DOWNLOAD FREE REPORT (.TXT)", st.session_state.free_text, "Aura_Free_Report.txt")
-        
+        # Paywall UI
         st.markdown("""
         <div class='paywall-box'>
-            <h3>🔒 UNLOCK YOUR MASTER PROTOCOL - $4.99</h3>
             <p class='blur-text'>1. Deep Cognitive Diagnosis: Analyzing your hidden patterns...<br>
             2. Immediate Triage: Exact steps for the next 24 hours...<br>
             3. The 7-Day Framework: Your daily optimization system...</p>
-            <p>Unlock a deep, 4-stage cognitive framework tailored strictly to your metrics.</p>
+            <p style='font-weight: bold;'>Unlock a deep, 4-stage cognitive framework tailored strictly to your metrics.</p>
         </div>
         """, unsafe_allow_html=True)
-        
-        if st.button("🔓 SIMULATE PURCHASE"):
-            st.session_state.report_stage = 2
-            st.rerun()
-            
+
+        # Stripe Checkout Button
+        if st.button("🔓 UNLOCK FULL PROTOCOL (1.99€)"):
+            try:
+                session = stripe.checkout.Session.create(
+                    line_items=[{
+                        'price': st.secrets["STRIPE_PRICE_ID"],
+                        'quantity': 1,
+                    }],
+                    mode='payment',
+                    success_url="https://aura-ai-mqxnltpcnm7bq45wromtbd.streamlit.app/?success=true",
+                    cancel_url="https://aura-ai-mqxnltpcnm7bq45wromtbd.streamlit.app/",
+                )
+                
+                # Professional redirect button
+                st.markdown(f'''
+                    <a href="{session.url}" target="_self" style="text-decoration: none;">
+                        <div style="background-color: #000000; color: white; padding: 12px; text-align: center; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px;">
+                            PROCEED TO SECURE PAYMENT
+                        </div>
+                    </a>
+                ''', unsafe_allow_html=True)
+            except Exception as e:
+                st.error(f"Payment System Error: {e}")
+
     elif st.session_state.report_stage == 2:
+        # Premium Content Display
+        st.balloons()
         st.success("✨ **Premium Master Protocol Unlocked** ✨")
         st.markdown(st.session_state.premium_text)
         st.markdown("---")
-        st.download_button("📥 DOWNLOAD FULL PREMIUM REPORT (.TXT)", st.session_state.full_text, "Aura_Premium_Report.txt")
+        st.download_button(
+            label="📩 DOWNLOAD FULL PREMIUM REPORT (.TXT)",
+            data=st.session_state.premium_text,
+            file_name="Aura_Premium_Report.txt",
+            mime="text/plain"
+        )
