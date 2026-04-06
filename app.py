@@ -185,6 +185,7 @@ if st.session_state.report_stage > 0:
         """, unsafe_allow_html=True)
 
         # Stripe Checkout Button
+        # Stripe Checkout Button - JavaScript Force Redirect Version
         if st.button("🔓 UNLOCK FULL PROTOCOL (1.99€)"):
             try:
                 session = stripe.checkout.Session.create(
@@ -197,15 +198,17 @@ if st.session_state.report_stage > 0:
                     cancel_url="https://aura-ai-mqxnltpcnm7bq45wromtbd.streamlit.app/",
                 )
                 
-                # Professional redirect button
-                st.markdown(f'''
-                    <a href="{session.url}" target="_self" style="text-decoration: none;">
-                        <div style="background-color: #000000; color: white; padding: 12px; text-align: center; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px;">
-                            PROCEED TO SECURE PAYMENT
-                        </div>
-                    </a>
-                ''', unsafe_allow_html=True)
+                # This snippet forces the browser to jump to Stripe immediately
+                js_redirect = f"""
+                <script>
+                    window.parent.location.href = "{session.url}";
+                </script>
+                """
+                st.markdown(js_redirect, unsafe_allow_html=True)
+                st.write("Redirecting to secure payment page...")
+                
             except Exception as e:
+                st.error(f"Error: {e}")
                 st.error(f"Payment System Error: {e}")
 
     elif st.session_state.report_stage == 2:
