@@ -97,7 +97,19 @@ This section must justify a premium price tag. Write an exhaustive, high-value p
 (Give advanced psychological advice on how to manage their specific traits for lasting balance and deep fulfillment.)
 
 Tone: Premium, highly analytical, deeply empathetic. English only. DO NOT use markdown code blocks."""
-
+# --- CACHING LOGIC ---
+@st.cache_data(show_spinner=False)
+def get_aura_report(stress, social, focus, emotion, narrative):
+    user_input = f"Stress:{stress}, Social:{social}, Focus:{focus}, Emotion:{emotion}. Text:{narrative}"
+    resp = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": AURA_PROMPT},
+            {"role": "user", "content": user_input}
+        ],
+        temperature=0.7
+    )
+    return resp.choices[0].message.content.replace("```markdown", "").replace("```", "")
 # --- UI HEADER ---
 st.markdown("<h1 class='main-title'>AURA</h1>", unsafe_allow_html=True)
 st.markdown("<p class='sub-title'>DEEP PSYCHOLOGICAL INSIGHTS DRIVEN BY AI</p>", unsafe_allow_html=True)
@@ -122,17 +134,10 @@ if st.button("GENERATE MY AURA REPORT"):
         with st.spinner("Generating High-Value Cognitive Blueprint..."):
             user_input = f"Stress:{stress}, Social:{social}, Focus:{focus}, Emotion:{emotion}. Text:{narrative}"
             
+            
             try:
-                resp = client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[
-                        {"role": "system", "content": AURA_PROMPT},
-                        {"role": "user", "content": user_input}
-                    ],
-                    temperature=0.7
-                )
-                
-                raw_text = resp.choices[0].message.content.replace("```markdown", "").replace("```", "")
+                # Calling the cached function
+                raw_text = get_aura_report(stress, social, focus, emotion, narrative)
                 
                 if "===SPLIT===" in raw_text:
                     parts = raw_text.split("===SPLIT===")
@@ -140,19 +145,27 @@ if st.button("GENERATE MY AURA REPORT"):
                     st.session_state.premium_text = parts[1].strip()
                 else:
                     st.session_state.free_text = raw_text
-                    st.session_state.premium_text = "## Error\nAI format error. Please try again."
+                    st.session_state.premium_text = "AI formatting error. Please try again."
                 
-                st.session_state.full_text = st.session_state.free_text + "\n\n" + st.session_state.premium_text
                 st.session_state.report_stage = 1
                 
             except Exception as e:
-                st.error(f"Error processing your request: {str(e)}")
+                st.error(f"Error: {str(e)}")
 
 # --- DISPLAY LOGIC ---
 # --- PAYMENT REDIRECT HANDLING ---
 # This checks if the user just returned from a successful Stripe payment
+# --- SESSION RECOVERY (Final Touch) ---
 if st.query_params.get("success") == "true":
     st.session_state.report_stage = 2
+    # Recovery logic: if session is wiped, we pull from cache using current inputs
+    if not st.session_state.premium_text and narrative:
+        try:
+            raw_text = get_aura_report(stress, social, focus, emotion, narrative)
+            if "===SPLIT===" in raw_text:
+                st.session_state.premium_text = raw_text.split("===SPLIT===")[1].strip()
+        except:
+            pass
 
 # --- DISPLAY LOGIC ---
 if st.session_state.report_stage > 0:
