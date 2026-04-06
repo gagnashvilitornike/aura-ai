@@ -206,7 +206,7 @@ if st.session_state.report_stage > 0:
             except Exception as e:
                 st.error(f"Payment System Error: {e}")
 
-   elif st.session_state.report_stage == 2:
+    elif st.session_state.report_stage == 2:
         # --- PREMIUM CONTENT DISPLAY ---
         
         # Check if premium text is in session
