@@ -186,7 +186,7 @@ if st.session_state.report_stage > 0:
                 
                 # Professional redirect button
                 st.markdown(f'''
-                    <a href="{session.url}" target="_blank" style="text-decoration: none;">
+                    <a href="{session.url}" target="_self" style="text-decoration: none;">
                         <div style="background-color: #000000; color: white; padding: 12px; text-align: center; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px;">
                             PROCEED TO SECURE PAYMENT
                         </div>
