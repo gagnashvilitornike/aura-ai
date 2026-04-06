@@ -206,13 +206,13 @@ if st.session_state.report_stage > 0:
             except Exception as e:
                 st.error(f"Payment System Error: {e}")
 
-    elif st.session_state.report_stage == 2:
+   elif st.session_state.report_stage == 2:
         # --- PREMIUM CONTENT DISPLAY ---
-        st.balloons()
-        st.success("✨ **Premium Master Protocol Unlocked** ✨")
         
         # Check if premium text is in session
         if st.session_state.premium_text:
+            st.balloons()
+            st.success("✨ **Premium Master Protocol Unlocked** ✨")
             st.markdown(st.session_state.premium_text)
             st.markdown("---")
             st.download_button(
@@ -222,5 +222,26 @@ if st.session_state.report_stage > 0:
                 mime="text/plain"
             )
         else:
-            # Recovery message for session timeouts
-            st.warning("Payment verified, but session timed out. Please click 'GENERATE' above one more time to instantly view your report (No extra charge).")
+            # --- PROFESSIONAL RECOVERY MODE ---
+            st.success("✅ **Payment Verified! Your Premium Access is Active.**")
+            st.subheader("Finalize Your Protocol")
+            st.info("Due to a secure session refresh, please briefly re-enter what's on your mind. Your high-priority AI analysis will start immediately.")
+            
+            # Re-displaying the text input specifically for premium generation
+            recovery_text = st.text_area("Describe your current state or specific concerns:", placeholder="Type here...")
+            
+            if st.button("🚀 GENERATE PREMIUM REPORT NOW"):
+                if recovery_text:
+                    with st.spinner("Executing Premium Master Protocol..."):
+                        # We call the report function with existing slider values
+                        new_report = get_aura_report(
+                            st.session_state.get('stress', 5), 
+                            st.session_state.get('social', 5), 
+                            st.session_state.get('focus', 5), 
+                            st.session_state.get('emotion', 5), 
+                            recovery_text
+                        )
+                        st.session_state.premium_text = new_report
+                        st.rerun() # This will refresh and show the report above
+                else:
+                    st.error("Please provide some input to generate the report.")
