@@ -157,6 +157,10 @@ if st.query_params.get("success") == "true":
 # --- DISPLAY LOGIC ---
 if st.session_state.report_stage > 0:
     if st.session_state.report_stage == 1:
+        # --- SHOW FREE CONTENT FIRST ---
+        st.markdown("### Your Initial Aura Analysis")
+        st.write(st.session_state.free_text)
+        st.markdown("---")
         # Paywall UI
         st.markdown("""
         <div class='paywall-box'>
