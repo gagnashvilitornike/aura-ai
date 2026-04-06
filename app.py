@@ -8,6 +8,8 @@ load_dotenv()
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 stripe.api_key = st.secrets["STRIPE_SECRET_KEY"]
 st.set_page_config(page_title="Aura | Premium Insights", layout="centered")
+# Google Verification Tag
+st.markdown('<meta name="google-site-verification" content="dlUX5APIsCm3mzBMFSJYx2vIww38bSI9GsVXZoV-VSc" />', unsafe_allow_html=True)
 
 # --- THEME MANAGEMENT & MEMORY ---
 if "theme" not in st.session_state:
