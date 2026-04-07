@@ -101,8 +101,8 @@ This section must justify a premium price tag. Write an exhaustive, high-value p
 Tone: Premium, highly analytical, deeply empathetic. English only. DO NOT use markdown code blocks."""
 # --- CACHING LOGIC ---
 @st.cache_data(show_spinner=False)
-def get_aura_report(stress, social, focus, emotion, narrative):
-    user_input = f"Stress:{stress}, Social:{social}, Focus:{focus}, Emotion:{emotion}. Text:{narrative}"
+def get_aura_report(stress, social, focus, emotion, narrative, q1, q2, q3, q4, q5, q6, q7):
+    user_input = f"Sliders: Stress:{stress}, Social:{social}, Focus:{focus}, Emotion:{emotion}. Text:{narrative}. Q1:{q1}, Q2:{q2}, Q3:{q3}, Q4:{q4}, Q5:{q5}, Q6:{q6}, Q7:{q7}"
     resp = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -126,6 +126,16 @@ with col2:
     emotion = st.slider("Emotional Baseline", 1, 10, 5)
 
 narrative = st.text_area("Describe what is taking up the most space in your mind right now.", height=100)
+st.markdown("### The Shadow Archetype Test")
+st.markdown("<p style='font-size: 14px; color: #666;'>Answer these 7 subconscious prompts to unlock your true cognitive blueprint.</p>", unsafe_allow_html=True)
+
+q1 = st.selectbox("1. You stand before four doors. Which do you open?", ["A heavy iron door requiring great strength", "A wooden door with a comforting melody behind it", "A glass door obscured by thick fog", "A hidden trapdoor leading downwards"])
+q2 = st.selectbox("2. A stranger on a train whispers the lie you tell yourself most often. What is it?", ["'I am not ready yet.'", "'I don't need anyone's help.'", "'It is not my fault.'", "'I will start tomorrow.'"])
+q3 = st.selectbox("3. If your current mental state were a landscape, what would it be?", ["A bustling, overwhelming metropolis", "A deserted, perfectly quiet island", "A high mountain peak lost in the clouds", "A ship navigating a violent storm"])
+q4 = st.selectbox("4. You find an ancient, locked box. What do you secretly believe is inside?", ["A map to a hidden truth", "A mirror showing my true self", "A weapon of immense power", "A letter from my past"])
+q5 = st.selectbox("5. You hear a clock ticking in an empty room. How does it make you feel?", ["Urgent — time is running out", "Peaceful — a rhythmic comfort", "Anxious — it is too loud", "Indifferent — it is just background noise"])
+q6 = st.selectbox("6. When you look in a mirror, what do you usually focus on first?", ["My flaws and imperfections", "My eyes and the emotion in them", "My overall posture and presence", "I quickly look away"])
+q7 = st.selectbox("7. What is the one word you dread being called the most?", ["Ordinary", "Weak", "Selfish", "Incapable"])
 email = st.text_input("Enter your email address (Required)", placeholder="your@email.com")
 
 # --- GENERATION LOGIC ---
@@ -139,7 +149,7 @@ if st.button("GENERATE MY SOULMAP REPORT"):
             
             try:
                 # Calling the cached function
-                raw_text = get_aura_report(stress, social, focus, emotion, narrative)
+                raw_text = get_aura_report(stress, social, focus, emotion, narrative, q1, q2, q3, q4, q5, q6, q7)
                 
                 if "===SPLIT===" in raw_text:
                     parts = raw_text.split("===SPLIT===")
@@ -237,13 +247,13 @@ if st.session_state.report_stage > 0:
                     with st.spinner("Executing Premium Master Protocol..."):
                         # We call the report function with existing slider values
                         new_report = get_aura_report(
-                            st.session_state.get('stress', 5), 
-                            st.session_state.get('social', 5), 
-                            st.session_state.get('focus', 5), 
-                            st.session_state.get('emotion', 5), 
-                            recovery_text
-                        )
-                        st.session_state.premium_text = new_report
+                        st.session_state.get('stress', 5),
+                        st.session_state.get('social', 5),
+                        st.session_state.get('focus', 5),
+                        st.session_state.get('emotion', 5),
+                        recovery_text,
+                        "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A"
+                    )
                         st.rerun() # This will refresh and show the report above
                 else:
                     st.error("Please provide some input to generate the report.")
