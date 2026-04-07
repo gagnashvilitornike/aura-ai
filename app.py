@@ -7,7 +7,7 @@ import stripe
 load_dotenv()
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 stripe.api_key = st.secrets["STRIPE_SECRET_KEY"]
-st.set_page_config(page_title="Aura | Premium Insights", layout="centered")
+st.set_page_config(page_title="Soulmap | Deep Psychological Insights", layout="centered")
 # Google Verification Tag
 st.markdown('<meta name="google-site-verification" content="dlUX5APIsCm3mzBMFSJYx2vIww38bSI9GsVXZoV-VSc" />', unsafe_allow_html=True)
 
@@ -73,7 +73,7 @@ with col_toggle:
         st.rerun()
 
 # --- MEGA PROMPT ---
-AURA_PROMPT = """You are Aura, an elite psychological profiler. 
+AURA_PROMPT = """You are Soulmap, an elite psychological profiler.
 Based on the user's metrics and text, write a deep psychological report.
 You MUST divide your response into exactly two parts, separated by this exact keyword: ===SPLIT===
 
@@ -113,7 +113,7 @@ def get_aura_report(stress, social, focus, emotion, narrative):
     )
     return resp.choices[0].message.content.replace("```markdown", "").replace("```", "")
 # --- UI HEADER ---
-st.markdown("<h1 class='main-title'>AURA</h1>", unsafe_allow_html=True)
+st.markdown("<h1 class='main-title'>SOULMAP</h1>", unsafe_allow_html=True)
 st.markdown("<p class='sub-title'>DEEP PSYCHOLOGICAL INSIGHTS DRIVEN BY AI</p>", unsafe_allow_html=True)
 
 # --- ASSESSMENT FORM ---
@@ -129,7 +129,7 @@ narrative = st.text_area("Describe what is taking up the most space in your mind
 email = st.text_input("Enter your email address (Required)", placeholder="your@email.com")
 
 # --- GENERATION LOGIC ---
-if st.button("GENERATE MY AURA REPORT"):
+if st.button("GENERATE MY SOULMAP REPORT"):
     if len(narrative) < 5 or "@" not in email:
         st.warning("Please provide a bit more detail and a valid email address.")
     else:
@@ -173,7 +173,7 @@ if st.query_params.get("success") == "true":
 if st.session_state.report_stage > 0:
     if st.session_state.report_stage == 1:
         # --- SHOW FREE CONTENT FIRST ---
-        st.markdown("### Your Initial Aura Analysis")
+        st.markdown("### Your Initial Soulmap Analysis")
         st.write(st.session_state.free_text)
         st.markdown("---")
         # Paywall UI
@@ -220,7 +220,7 @@ if st.session_state.report_stage > 0:
             st.download_button(
                 label="📩 DOWNLOAD FULL PREMIUM REPORT (.TXT)",
                 data=st.session_state.premium_text,
-                file_name="Aura_Premium_Report.txt",
+                file_name="Soulmap_Premium_Report.txt",
                 mime="text/plain"
             )
         else:
